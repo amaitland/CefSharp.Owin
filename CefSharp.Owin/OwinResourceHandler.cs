@@ -70,6 +70,10 @@ namespace CefSharp.Owin
             var uri = new Uri(request.Url);
 
             //http://owin.org/html/owin.html#3-2-environment
+            //The Environment dictionary stores information about the request,
+            //the response, and any relevant server state.
+            //The server is responsible for providing body streams and header collections for both the request and response in the initial call.
+            //The application then populates the appropriate fields with response data, writes the response body, and returns when done.
             //Keys MUST be compared using StringComparer.Ordinal.
             _owinEnvironment = new Dictionary<string, object>(StringComparer.Ordinal)
             {
