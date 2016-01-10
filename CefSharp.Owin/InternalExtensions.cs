@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
@@ -8,7 +9,7 @@ namespace CefSharp.Owin
     {
         public static IDictionary<string, string[]> ToDictionary(this NameValueCollection nameValueCollection)
         {
-            var dict = new Dictionary<string, string[]>();
+            var dict = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
             foreach (var key in nameValueCollection.AllKeys)
             {
                 if (!dict.ContainsKey(key))

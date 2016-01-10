@@ -83,7 +83,7 @@ namespace CefSharp.Owin
                 {"owin.RequestQueryString", uri.Query},
                 {"owin.RequestScheme", uri.Scheme},
                 //Response http://owin.org/html/owin.html#3-2-2-response-data
-                {"owin.ResponseHeaders", new Dictionary<string, string[]>()},
+                {"owin.ResponseHeaders", new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)},
                 {"owin.ResponseBody", _responseStream}
             };
 
