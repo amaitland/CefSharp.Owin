@@ -69,9 +69,11 @@ namespace CefSharp.Owin
             
             var uri = new Uri(request.Url);
 
-            _owinEnvironment = new Dictionary<string, object>
+            //http://owin.org/html/owin.html#3-2-environment
+            //Keys MUST be compared using StringComparer.Ordinal.
+            _owinEnvironment = new Dictionary<string, object>(StringComparer.Ordinal)
             {
-                //Request
+                //Request http://owin.org/html/owin.html#3-2-1-request-data
                 {"owin.RequestBody", requestBody},
                 {"owin.RequestHeaders", requestHeaders},
                 {"owin.RequestMethod", request.Method},
@@ -80,7 +82,7 @@ namespace CefSharp.Owin
                 {"owin.RequestProtocol", "HTTP/1.1"},
                 {"owin.RequestQueryString", uri.Query},
                 {"owin.RequestScheme", uri.Scheme},
-                //Response
+                //Response http://owin.org/html/owin.html#3-2-2-response-data
                 {"owin.ResponseHeaders", new Dictionary<string, string[]>()},
                 {"owin.ResponseBody", _responseStream}
             };
