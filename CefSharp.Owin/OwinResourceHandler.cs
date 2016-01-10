@@ -16,6 +16,15 @@ namespace CefSharp.Owin
     /// </summary>
     public class OwinResourceHandler : IResourceHandler, IDisposable
     {
+        private static readonly Dictionary<int, string> StatusCodeToStatusTextMapping = new Dictionary<int, string>
+        {
+            {200, "OK"},
+            {301, "Moved Permanently"},
+            {304, "Not Modified"},
+            {404, "Not Found"}
+        };
+
+
         private readonly AppFunc _appFunc;
         private readonly Stream _responseStream = new MemoryStream();
         private Dictionary<string, object> _owinEnvironment;
@@ -99,8 +108,8 @@ namespace CefSharp.Owin
             if (_owinEnvironment.ContainsKey("owin.ResponseStatusCode"))
             {
                 response.StatusCode = Convert.ToInt32(_owinEnvironment["owin.ResponseStatusCode"]);
-                //TODO: Map status code to StatusText
-                response.StatusText = "OK";
+                //TODO: Improve status code mapping - see if CEF has a helper function that can be exposed
+                response.StatusText = StatusCodeToStatusTextMapping[response.StatusCode];
             }
             else
             {
