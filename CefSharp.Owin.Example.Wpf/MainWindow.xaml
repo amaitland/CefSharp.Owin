@@ -6,7 +6,7 @@
         Width="1024"
         Height="768">
     <Window.InputBindings>
-        <KeyBinding Modifiers="Control" Key="U" Command="{Binding Path=ViewSourceCommand, ElementName=ChromiumWebBrowser}" />
+        <KeyBinding Modifiers="Control" Key="U" Command="{Binding Path=ViewSourceCommand, ElementName=Browser}" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -14,7 +14,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <wpf:ChromiumWebBrowser Grid.Row="0"
-                          x:Name="ChromiumWebBrowser"
+                          x:Name="Browser"
                           Address="owin://cefsharp.test/"
                           WebBrowser="{Binding WebBrowser, Mode=OneWayToSource}"
                           Title="{Binding Title, Mode=TwoWay}" />

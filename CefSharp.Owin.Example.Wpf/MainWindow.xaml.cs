@@ -10,6 +10,13 @@ namespace CefSharp.Owin.Example.Wpf
         public MainWindow()
         {
             InitializeComponent();
+
+            Browser.IsBrowserInitializedChanged += OnIsBrowserInitializedChanged;
+        }
+
+        private void OnIsBrowserInitializedChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            //Browser.ShowDevTools();
         }
     }
 }
