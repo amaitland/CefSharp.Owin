@@ -12,6 +12,7 @@ namespace CefSharp.Owin
 
     /// <summary>
     /// Loosly based on https://github.com/eVisionSoftware/Harley/blob/master/src/Harley.UI/Owin/OwinSchemeHandlerFactory.cs
+    /// New instance is instanciated for every request
     /// </summary>
     public class OwinResourceHandler : IResourceHandler, IDisposable
     {
@@ -73,7 +74,7 @@ namespace CefSharp.Owin
                 {"owin.ResponseBody", _responseStream}
             };
 
-            //Spawn a new task to execute the own pipeline - need to return ASAP so other processing can occur
+            //Spawn a new task to execute the OWIN pipeline - need to return ASAP so other processing can occur
             Task.Run(async () =>
             {
                 await _appFunc(_owinEnvironment);
@@ -96,7 +97,7 @@ namespace CefSharp.Owin
             if (_owinEnvironment.ContainsKey("owin.ResponseStatusCode"))
             {
                 response.StatusCode = Convert.ToInt32(_owinEnvironment["owin.ResponseStatusCode"]);
-                //TODO: May status code to StatusText
+                //TODO: Map status code to StatusText
                 response.StatusText = "OK";
             }
             else
