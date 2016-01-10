@@ -18,7 +18,21 @@ namespace CefSharp.Owin.Example.Wpf.Framework.Nancy
 
                 var model = new HomeViewModel
                 {
-                    Text = string.Format("Welcome to {0}.{1}", inputModel.Input1, inputModel.Input2),
+                    Text = string.Format("Input from Query String: {0} - {1}", inputModel.Input1, inputModel.Input2),
+                    Method = owinContext.Request.Method
+                };
+                return View["home", model];
+            };
+
+            Post["/"] = x =>
+            {
+                var owinContext = new OwinContext(Context.GetOwinEnvironment());
+
+                var inputModel = this.Bind<HomeBindingModel>();
+
+                var model = new HomeViewModel
+                {
+                    Text = string.Format("Input from Form Post: {0} - {1}", inputModel.Input1, inputModel.Input2),
                     Method = owinContext.Request.Method
                 };
                 return View["home", model];

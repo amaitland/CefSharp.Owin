@@ -1,28 +1,27 @@
-﻿
-@inherits NancyRazorViewBase<HomeViewModel>
+﻿@inherits NancyRazorViewBase<HomeViewModel>
+
+@{
+    Layout = "Shared/_Layout.cshtml";
+}
 
 @using Nancy.ViewEngines.Razor;
 @using CefSharp.Owin.Example.Wpf.Framework.Nancy.ViewModels
 
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>CefSharp.Own.Example.Wpf</title>
-</head>
-<body>
-    <header>
-        <img src="/Content/logo.png" alt="CefSharp Logo" />
-        <h1>@Model.Text</h1>
-    </header>
-    <section>
-        <h2>CefSharp + OWIN + Nancy + Razor</h2>
-        <ul>
-            <li>No network requests are made, just in memory requests to the OWIN pipeline</li>
-            <li>CefSharp.Owin has no reference to OWIN, just the known Func type that it uses</li>
-            <li>This request was rendered using Nancy and the Razor view engine</li>
-            <li>TODO</li>
-        </ul>
-        <div>Request Method (GET/POST): @Model.Method</div>
-    </section>
-</body>
-</html>
+
+<h2>@Model.Text</h2>
+<h3>CefSharp + OWIN + Nancy + Razor</h3>
+<ul>
+    <li>No network requests are made, just in memory requests to the OWIN pipeline</li>
+    <li>CefSharp.Owin has no reference to OWIN, just the known Func type that it uses</li>
+    <li>This request was rendered using Nancy and the Razor view engine</li>
+    <li>TODO</li>
+</ul>
+<div>Request Method (GET/POST): @Model.Method</div>
+
+<form method="POST">
+    Input1: <input type="text" name="Input1" value="CefSharp" />
+    <br/>
+    Input2: <input type="text" name="Input2" value="Owin" />
+    <br/>
+    <input type="submit" value="Submit"/>
+</form>
