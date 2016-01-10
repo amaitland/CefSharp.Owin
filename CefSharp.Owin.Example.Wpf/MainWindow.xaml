@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <wpf:ChromiumWebBrowser Grid.Row="0"
                           x:Name="Browser"
-                          Address="owin://cefsharp.test/"
+                          Address="owin://cefsharp.test/?Input1=CefSharp&amp;Input2=Owin"
                           WebBrowser="{Binding WebBrowser, Mode=OneWayToSource}"
                           Title="{Binding Title, Mode=TwoWay}" />
         <StatusBar Grid.Row="1">
