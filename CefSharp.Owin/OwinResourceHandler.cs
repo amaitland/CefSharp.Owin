@@ -36,7 +36,6 @@ namespace CefSharp.Owin
 
         public bool ProcessRequestAsync(IRequest request, ICallback callback)
         {
-            var requestHeaders = request.Headers.ToDictionary();
             var requestBody = Stream.Null;
 
             if (request.Method == "POST")
@@ -68,6 +67,9 @@ namespace CefSharp.Owin
             }
             
             var uri = new Uri(request.Url);
+            var requestHeaders = request.Headers.ToDictionary();
+            //Add Host header as per http://owin.org/html/owin.html#5-2-hostname
+            requestHeaders.Add("Host", new[] { uri.Host + (uri.Port > 0 ? (":" + uri.Port) : "") });
 
             //http://owin.org/html/owin.html#3-2-environment
             //The Environment dictionary stores information about the request,
