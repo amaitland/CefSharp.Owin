@@ -114,13 +114,8 @@ namespace CefSharp.Owin
             {
                 response.ResponseHeaders.Add(responseHeader.Key, string.Join(";", responseHeader.Value));
             }
-            
-            response.MimeType = responseHeaders.ContainsKey("Content-Type") ? response.ResponseHeaders["Content-Type"] : "text/plain";
 
-            if (string.IsNullOrEmpty(response.MimeType))
-            {
-                response.MimeType = "text/plain";
-            }
+            response.MimeType = responseHeaders.ContainsKey("Content-Type") ? responseHeaders["Content-Type"].First() : "text/plain";
 
             //Response has been populated - reset the position to 0 so it can be read
             _responseStream.Position = 0;
