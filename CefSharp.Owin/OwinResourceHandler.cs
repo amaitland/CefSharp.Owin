@@ -110,12 +110,18 @@ namespace CefSharp.Owin
 
             //Copy the response headers
             var responseHeaders = (Dictionary<string, string[]>)_owinEnvironment["owin.ResponseHeaders"];
-            foreach (var responseHeader in responseHeaders)
-            {
-                response.ResponseHeaders.Add(responseHeader.Key, string.Join(";", responseHeader.Value));
-            }
 
             response.MimeType = responseHeaders.ContainsKey("Content-Type") ? responseHeaders["Content-Type"].First() : "text/plain";
+
+            //The way the CEF API exposes headers means we need to take a copy of the existing headers (will be empty - using this method as it's best practice for CefSharp)
+            var headers = response.ResponseHeaders;
+
+            foreach (var responseHeader in responseHeaders)
+            {
+                headers.Add(responseHeader.Key, string.Join(";", responseHeader.Value));
+            }
+
+            response.ResponseHeaders = headers;
 
             //Response has been populated - reset the position to 0 so it can be read
             _responseStream.Position = 0;
