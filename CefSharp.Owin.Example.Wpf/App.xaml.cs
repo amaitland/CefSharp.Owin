@@ -21,7 +21,7 @@ namespace CefSharp.Owin.Example.Wpf
 
             var appBuilder = new AppBuilder();
             appBuilder.UseNancy();
-            var appFunc = (AppFunc)appBuilder.Build(typeof (AppFunc));
+            var appFunc = appBuilder.Build<AppFunc>();
 
             var settings = new CefSettings();
             settings.RegisterOwinSchemeHandlerFactory("owin", appFunc);
