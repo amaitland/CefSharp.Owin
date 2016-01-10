@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Owin.Builder;
 using Owin;
-using Owin.Builder;
 
 namespace CefSharp.Owin.Example.Wpf
 {
