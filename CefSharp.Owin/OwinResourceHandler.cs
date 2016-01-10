@@ -62,6 +62,7 @@ namespace CefSharp.Owin
 
             _owinEnvironment = new Dictionary<string, object>
             {
+                //Request
                 {"owin.RequestBody", requestBody},
                 {"owin.RequestHeaders", requestHeaders},
                 {"owin.RequestMethod", request.Method},
@@ -69,7 +70,8 @@ namespace CefSharp.Owin
                 {"owin.RequestPathBase", "/"},
                 {"owin.RequestProtocol", "HTTP/1.1"},
                 {"owin.RequestQueryString", uri.Query},
-                {"owin.RequestScheme", "HTTP/1.1"},
+                {"owin.RequestScheme", uri.Scheme},
+                //Response
                 {"owin.ResponseHeaders", new Dictionary<string, string[]>()},
                 {"owin.ResponseBody", _responseStream}
             };
