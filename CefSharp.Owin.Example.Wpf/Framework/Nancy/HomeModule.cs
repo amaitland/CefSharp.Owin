@@ -27,10 +27,8 @@ namespace CefSharp.Owin.Example.Wpf.Framework.Nancy
                 var responseBody = (Stream)env["owin.ResponseBody"];
                 var responseHeaders = (IDictionary<string, string[]>)env["owin.ResponseHeaders"];
 
-
-                var responseHtml = "Welcome to CefSharp Owin";
-
-                return responseHtml;
+                var model = new { Text = "Welcome to CefSharp.Owin" };
+                return View["home", model];
             };
         }
     }
