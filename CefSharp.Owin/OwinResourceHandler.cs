@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 
 namespace CefSharp.Owin
 {
@@ -14,7 +15,7 @@ namespace CefSharp.Owin
     /// Loosly based on https://github.com/eVisionSoftware/Harley/blob/master/src/Harley.UI/Owin/OwinSchemeHandlerFactory.cs
     /// New instance is instanciated for every request
     /// </summary>
-    public class OwinResourceHandler : IResourceHandler, IDisposable
+    public class OwinResourceHandler : IResourceHandler
     {
         private static readonly Dictionary<int, string> StatusCodeToStatusTextMapping = new Dictionary<int, string>
         {
@@ -65,7 +66,9 @@ namespace CefSharp.Owin
                     }
                 }
             }
-            
+
+            //var cancellationTokenSource = new CancellationTokenSource();
+            //var cancellationToken = cancellationTokenSource.Token;
             var uri = new Uri(request.Url);
             var requestHeaders = request.Headers.ToDictionary();
             //Add Host header as per http://owin.org/html/owin.html#5-2-hostname
@@ -90,19 +93,23 @@ namespace CefSharp.Owin
                 {"owin.RequestScheme", uri.Scheme},
                 //Response http://owin.org/html/owin.html#3-2-2-response-data
                 {"owin.ResponseHeaders", new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)},
-                {"owin.ResponseBody", _responseStream}
+                {"owin.ResponseBody", _responseStream},
+                //Other Data
+                {"owin.Version", "1.0.0"},
+                //{"owin.CallCancelled", cancellationToken}
             };
 
             //Spawn a new task to execute the OWIN pipeline - need to return ASAP so other processing can occur
             Task.Run(async () =>
             {
                 await _appFunc(_owinEnvironment);
-                
-                //Callback wraps an unmanaged resource, so let's Dispose when we're done
+
+                //Callback wraps an unmanaged resource, so let's explicitly Dispose when we're done    
                 using (callback)
                 {
                     callback.Continue();
                 }
+                
             });
 
             return true;
@@ -117,12 +124,12 @@ namespace CefSharp.Owin
             {
                 response.StatusCode = Convert.ToInt32(_owinEnvironment["owin.ResponseStatusCode"]);
                 //TODO: Improve status code mapping - see if CEF has a helper function that can be exposed
-                response.StatusText = StatusCodeToStatusTextMapping[response.StatusCode];
+                //response.StatusText = StatusCodeToStatusTextMapping[response.StatusCode];
             }
             else
             {
                 response.StatusCode = (int)HttpStatusCode.OK;
-                response.StatusText = "OK";
+                //response.StatusText = "OK";
             }
 
             //Copy the response headers
@@ -130,7 +137,8 @@ namespace CefSharp.Owin
 
             response.MimeType = responseHeaders.ContainsKey("Content-Type") ? responseHeaders["Content-Type"].First() : "text/plain";
 
-            //The way the CEF API exposes headers means we need to take a copy of the existing headers (will be empty - using this method as it's best practice for CefSharp)
+            //The way the CEF API exposes headers means we need to take a copy of the existing headers
+            // (will be empty - using this method as it's best practice for CefSharp)
             var headers = response.ResponseHeaders;
 
             foreach (var responseHeader in responseHeaders)
@@ -144,11 +152,6 @@ namespace CefSharp.Owin
             _responseStream.Position = 0;
 
             return _responseStream;
-        }
-
-        public void Dispose()
-        {
-            
         }
     }
 }
