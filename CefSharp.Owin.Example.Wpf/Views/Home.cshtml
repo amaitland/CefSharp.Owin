@@ -1,11 +1,17 @@
-﻿<!DOCTYPE html>
+﻿
+@inherits NancyRazorViewBase<HomeViewModel>
+
+@using Nancy.ViewEngines.Razor;
+@using CefSharp.Owin.Example.Wpf.Framework.Nancy.ViewModels
+
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>CefSharp.Own.Example.Wpf</title>
 </head>
 <body>
     <header>
-        <img src="/Content/logo.png" />
+        <img src="/Content/logo.png" alt="CefSharp Logo" />
         <h1>@Model.Text</h1>
     </header>
     <section>
