@@ -4,18 +4,19 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
+using System.Collections.Specialized;
 
 namespace CefSharp.Owin
 {
     //Shorthand for Owin pipeline func
     using AppFunc = Func<IDictionary<string, object>, Task>;
+    
 
     /// <summary>
     /// Loosly based on https://github.com/eVisionSoftware/Harley/blob/master/src/Harley.UI/Owin/OwinSchemeHandlerFactory.cs
     /// New instance is instanciated for every request
     /// </summary>
-    public class OwinResourceHandler : IResourceHandler
+    public class OwinResourceHandler : ResourceHandler
     {
         private static readonly Dictionary<int, string> StatusCodeToStatusTextMapping = new Dictionary<int, string>
         {
@@ -25,18 +26,26 @@ namespace CefSharp.Owin
             {404, "Not Found"}
         };
 
-
         private readonly AppFunc _appFunc;
-        private readonly Stream _responseStream = new MemoryStream();
-        private Dictionary<string, object> _owinEnvironment;
 
         public OwinResourceHandler(AppFunc appFunc)
         {
             _appFunc = appFunc;
         }
 
-        public bool ProcessRequestAsync(IRequest request, ICallback callback)
+        /// <summary>
+        /// Read the request, then process it through the OWEN pipeline
+        /// then populate the response properties.
+        /// </summary>
+        /// <param name="request">request</param>
+        /// <param name="callback">callback</param>
+        /// <returns>always returns true as we'll handle all requests this handler is registered for.</returns>
+        public override bool ProcessRequestAsync(IRequest request, ICallback callback)
         {
+            // PART 1 - Read the request - here we read the request and create a dictionary
+            // that follows the OWEN standard
+
+            var responseStream = new MemoryStream();
             var requestBody = Stream.Null;
 
             if (request.Method == "POST")
@@ -65,8 +74,9 @@ namespace CefSharp.Owin
                         //}
                     }
                 }
-            }
+            }            
 
+            //TODO: Implement cancellation token
             //var cancellationTokenSource = new CancellationTokenSource();
             //var cancellationToken = cancellationTokenSource.Token;
             var uri = new Uri(request.Url);
@@ -80,7 +90,7 @@ namespace CefSharp.Owin
             //The server is responsible for providing body streams and header collections for both the request and response in the initial call.
             //The application then populates the appropriate fields with response data, writes the response body, and returns when done.
             //Keys MUST be compared using StringComparer.Ordinal.
-            _owinEnvironment = new Dictionary<string, object>(StringComparer.Ordinal)
+            var owinEnvironment = new Dictionary<string, object>(StringComparer.Ordinal)
             {
                 //Request http://owin.org/html/owin.html#3-2-1-request-data
                 {"owin.RequestBody", requestBody},
@@ -93,17 +103,54 @@ namespace CefSharp.Owin
                 {"owin.RequestScheme", uri.Scheme},
                 //Response http://owin.org/html/owin.html#3-2-2-response-data
                 {"owin.ResponseHeaders", new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)},
-                {"owin.ResponseBody", _responseStream},
+                {"owin.ResponseBody", responseStream},
                 //Other Data
                 {"owin.Version", "1.0.0"},
                 //{"owin.CallCancelled", cancellationToken}
             };
 
-            //Spawn a new task to execute the OWIN pipeline - need to return ASAP so other processing can occur
+            //PART 2 - Spawn a new task to execute the OWIN pipeline
+            //We execute this in an async fashion and return true so other processing
+            //can occur
             Task.Run(async () =>
             {
-                await _appFunc(_owinEnvironment);
+                //Call into the OWEN pipeline
+                await _appFunc(owinEnvironment);
 
+                //Response has been populated - reset the position to 0 so it can be read
+                responseStream.Position = 0;
+
+                int statusCode;
+
+                if (owinEnvironment.ContainsKey("owin.ResponseStatusCode"))
+                {
+                    statusCode = Convert.ToInt32(owinEnvironment["owin.ResponseStatusCode"]);
+                    //TODO: Improve status code mapping - see if CEF has a helper function that can be exposed
+                    //StatusText = StatusCodeToStatusTextMapping[response.StatusCode];
+                }
+                else
+                {
+                    statusCode = (int)HttpStatusCode.OK;
+                    //StatusText = "OK";
+                }
+
+                //Grab a reference to the ResponseHeaders
+                var responseHeaders = (Dictionary<string, string[]>)owinEnvironment["owin.ResponseHeaders"];
+
+                //Populate the response properties
+                Stream = responseStream;
+                ResponseLength = responseStream.Length;
+                StatusCode = statusCode;
+                MimeType = responseHeaders.ContainsKey("Content-Type") ? responseHeaders["Content-Type"].First() : "text/plain";
+
+                //Add the response headers from OWEN to the Headers NameValueCollection
+                foreach (var responseHeader in responseHeaders)
+                {
+                    //It's possible for headers to have multiple values
+                    Headers.Add(responseHeader.Key, string.Join(";", responseHeader.Value));
+                }
+
+                //Once we've finished populating the properties we execute the callback
                 //Callback wraps an unmanaged resource, so let's explicitly Dispose when we're done    
                 using (callback)
                 {
@@ -113,45 +160,6 @@ namespace CefSharp.Owin
             });
 
             return true;
-        }
-
-        public Stream GetResponse(IResponse response, out long responseLength, out string redirectUrl)
-        {
-            responseLength = _responseStream.Length;
-            redirectUrl = null;
-
-            if (_owinEnvironment.ContainsKey("owin.ResponseStatusCode"))
-            {
-                response.StatusCode = Convert.ToInt32(_owinEnvironment["owin.ResponseStatusCode"]);
-                //TODO: Improve status code mapping - see if CEF has a helper function that can be exposed
-                //response.StatusText = StatusCodeToStatusTextMapping[response.StatusCode];
-            }
-            else
-            {
-                response.StatusCode = (int)HttpStatusCode.OK;
-                //response.StatusText = "OK";
-            }
-
-            //Copy the response headers
-            var responseHeaders = (Dictionary<string, string[]>)_owinEnvironment["owin.ResponseHeaders"];
-
-            response.MimeType = responseHeaders.ContainsKey("Content-Type") ? responseHeaders["Content-Type"].First() : "text/plain";
-
-            //The way the CEF API exposes headers means we need to take a copy of the existing headers
-            // (will be empty - using this method as it's best practice for CefSharp)
-            var headers = response.ResponseHeaders;
-
-            foreach (var responseHeader in responseHeaders)
-            {
-                headers.Add(responseHeader.Key, string.Join(";", responseHeader.Value));
-            }
-
-            response.ResponseHeaders = headers;
-
-            //Response has been populated - reset the position to 0 so it can be read
-            _responseStream.Position = 0;
-
-            return _responseStream;
         }
     }
 }

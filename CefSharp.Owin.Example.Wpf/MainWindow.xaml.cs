@@ -16,7 +16,10 @@ namespace CefSharp.Owin.Example.Wpf
 
         private void OnIsBrowserInitializedChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
-            //Browser.ShowDevTools();
+            if((bool)args.NewValue == true)
+            {
+                //Browser.ShowDevTools();
+            }
         }
     }
 }
