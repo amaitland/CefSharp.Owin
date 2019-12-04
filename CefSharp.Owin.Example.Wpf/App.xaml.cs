@@ -1,9 +1,10 @@
-﻿using System;
+﻿using CefSharp.Wpf;
+using Microsoft.Owin.Builder;
+using Owin;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.Owin.Builder;
-using Owin;
 
 namespace CefSharp.Owin.Example.Wpf
 {

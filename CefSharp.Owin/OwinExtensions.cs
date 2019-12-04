@@ -9,7 +9,7 @@ namespace CefSharp.Owin
 
     public static class OwinExtensions
     {
-        public static void RegisterOwinSchemeHandlerFactory(this CefSettings settings, string schemeName, AppFunc appFunc)
+        public static void RegisterOwinSchemeHandlerFactory(this AbstractCefSettings settings, string schemeName, AppFunc appFunc)
         {
             settings.RegisterScheme(new CefCustomScheme { SchemeName = schemeName, SchemeHandlerFactory = new OwinSchemeHandlerFactory(appFunc) });
         }

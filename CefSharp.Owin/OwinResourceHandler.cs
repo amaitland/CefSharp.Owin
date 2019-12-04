@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Collections.Specialized;
+using System.Threading.Tasks;
 
 namespace CefSharp.Owin
 {
     //Shorthand for Owin pipeline func
     using AppFunc = Func<IDictionary<string, object>, Task>;
-    
+
 
     /// <summary>
     /// Loosly based on https://github.com/eVisionSoftware/Harley/blob/master/src/Harley.UI/Owin/OwinSchemeHandlerFactory.cs
@@ -40,7 +39,7 @@ namespace CefSharp.Owin
         /// <param name="request">request</param>
         /// <param name="callback">callback</param>
         /// <returns>always returns true as we'll handle all requests this handler is registered for.</returns>
-        public override bool ProcessRequestAsync(IRequest request, ICallback callback)
+        public override CefReturnValue ProcessRequestAsync(IRequest request, ICallback callback)
         {
             // PART 1 - Read the request - here we read the request and create a dictionary
             // that follows the OWEN standard
@@ -74,7 +73,7 @@ namespace CefSharp.Owin
                         //}
                     }
                 }
-            }            
+            }
 
             //TODO: Implement cancellation token
             //var cancellationTokenSource = new CancellationTokenSource();
@@ -156,10 +155,10 @@ namespace CefSharp.Owin
                 {
                     callback.Continue();
                 }
-                
+
             });
 
-            return true;
+            return CefReturnValue.ContinueAsync;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace CefSharp.Owin.Example.Wpf.Framework.Nancy
     {
         public HomeModule()
         {
-            Get["/"] = x =>
+            Get("/", x =>
             {
                 var owinContext = new OwinContext(Context.GetOwinEnvironment());
 
@@ -22,9 +22,9 @@ namespace CefSharp.Owin.Example.Wpf.Framework.Nancy
                     Method = owinContext.Request.Method
                 };
                 return View["home", model];
-            };
+            });
 
-            Post["/"] = x =>
+            Post("/", x =>
             {
                 var owinContext = new OwinContext(Context.GetOwinEnvironment());
 
@@ -36,7 +36,7 @@ namespace CefSharp.Owin.Example.Wpf.Framework.Nancy
                     Method = owinContext.Request.Method
                 };
                 return View["home", model];
-            };
+            });
         }
     }
 }
