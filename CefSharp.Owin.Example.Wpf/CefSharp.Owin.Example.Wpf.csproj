@@ -145,7 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CefSharp.Wpf">
-      <Version>88.2.90</Version>
+      <Version>98.1.210</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.Razor">
       <Version>3.2.7</Version>
